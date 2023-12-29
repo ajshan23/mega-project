@@ -49,9 +49,9 @@ const userSchema=new mongoose.Schema(
 },{timestamps:true})
 //not use arrow function due to this functionality
 userSchema.pre("save",async function(next){
-    if(this.isModified("password")) return next();//password changes only if anyone changes password,otherwise the password field get updated each time the user changes other component like avatar or username or etc
+    if(!this.isModified("password")) return next();//password changes only if anyone changes password,otherwise the password field get updated each time the user changes other component like avatar or username or etc
     
-    this.password=bcrypt.hash(this.password,10)
+    this.password=await bcrypt.hash(this.password,10)
     next()
 })
 

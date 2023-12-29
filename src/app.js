@@ -23,12 +23,12 @@ app.use(cookieParser())
 
 //routes
 
-import useRouter from './routes/user.routes.js'
+import userRouter from './routes/user.routes.js'
 
 
 //routes decleration 
 // app.get() it is not used,bcz we are not using routes and app in same file like index,so we use app.use instead of app.get or whateverr,moti moti bath -<> use middleware
 
-app.use("/api/v1/users",useRouter)
+app.use("/api/v1/users",userRouter)
 //api/v1/users for standard practices
 export {app}
