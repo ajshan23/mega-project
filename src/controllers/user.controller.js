@@ -16,7 +16,6 @@ const registerUser = asyncHandler(async (req,res)=>{
 
 
     const {fullName,email,username,password}= req.body
-    console.log("email:",email);
 
     // if (fullName=="") {
     //     throw new ApiError(400,"fullname is required")
@@ -29,7 +28,7 @@ const registerUser = asyncHandler(async (req,res)=>{
 
       //check if user already exists:username,email
 
-    const existedUser=User.findOne({
+    const existedUser=await User.findOne({
         $or:[{ username },{ email }]
     })
     if(existedUser){
@@ -38,9 +37,14 @@ const registerUser = asyncHandler(async (req,res)=>{
 
      //check for images,check for avatar
     const avatarLocalPath = req.files?.avatar[0]?.path  //locapath,not in cloudinary
-    const coverLocalPath= req.files?.coverImage[0]?.path //loacalpath
-    
+    // const coverLocalPath= req.files?.coverImage[0]?.path //loacalpath
+    // console.log(req.files)
     //check for avatar
+
+    let coverImageLocalPath;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath=req.files.coverImage[0].path
+    }
 
     if (!avatarLocalPath) {
         throw new ApiError(400,"Avatar file is required")
@@ -49,7 +53,7 @@ const registerUser = asyncHandler(async (req,res)=>{
     //upload  them to cloudinary ,avtar check
 
    const avatar= await uploadOnCloudinary(avatarLocalPath)
-   const coverImage= await uploadOnCloudinary(coverLocalPath)
+   const coverImage= await uploadOnCloudinary(coverImageLocalPath)// if no cover image cloudinary will return  empty string,good side of cloudinary
 
    if (!avatar) {
         throw new ApiError(400,"Avatar file is required")
