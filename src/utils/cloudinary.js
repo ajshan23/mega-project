@@ -1,5 +1,7 @@
 import { v2 as cloudinary} from "cloudinary";
 import fs from "fs"
+import { type } from "os";
+import { ApiError } from "./ApiError";
 
 cloudinary.config({
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
@@ -24,4 +26,17 @@ const uploadOnCloudinary=async (localFilePath)=>{
         return null;
     }
 }
-export {uploadOnCloudinary}
+
+const deleteFromCloudinary= async(cloudinaryUrl)=>{
+    try {
+        if (!cloudinaryUrl) return null
+        const parts = cloudinaryUrl.split("/");
+        const filename = parts[parts.length - 1];
+       const response= await cloudinary.api.delete_resources(filename,{type:'auto',resource_type:'auto'})
+       if (!response) return null
+    } catch (error) {
+        return null;
+    }
+}
+
+export {uploadOnCloudinary,deleteFromCloudinary}

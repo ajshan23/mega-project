@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
 import {User} from "../models/user.model.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {deleteFromCloudinary, uploadOnCloudinary} from "../utils/cloudinary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 
@@ -251,7 +251,7 @@ const changeCurrentPassword=asyncHandler(async (req,res)=>{
 })
 
 const getCurrentUser=asyncHandler(async (req,res)=>{
-  return res.status(200).json(200,req.user, "current user fetch successfull")
+  return res.status(200).json(new ApiResponse(200,req.user, "current user fetch successfull"))
 })
 
 const updateAccoutDetails=asyncHandler(async (req,res)=>{/// if i want to change a file make another method instaed of adding to this one,bcz while updating files only part the user data gets updated each time
@@ -287,6 +287,14 @@ const updateUserAvatar=asyncHandler(async (req,res)=>{
 
     if (!avatar.url) {
       throw new ApiError(400,"error while uploading on avatar ")
+    }
+    const olddetailsofuser=await User.findById(req.user?._id)
+    if (!olddetailsofuser) {
+      throw new ApiError(400,"no avatar found on cloudinary to get replaced")
+    }
+    const isdeleteFromCloudinary = await deleteFromCloudinary(olddetailsofuser.avatar)
+    if (isdeleteFromCloudinary) {
+      throw new ApiError(400,"old avatar deleting failed")
     }
     const user = await User.findByIdAndUpdate(
       req.user?._id,
