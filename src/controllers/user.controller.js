@@ -289,7 +289,7 @@ const updateUserAvatar=asyncHandler(async (req,res)=>{
       throw new ApiError(400,"error while uploading on avatar ")
     }
     const olddetailsofuser=await User.findById(req.user?._id)
-    if (!olddetailsofuser) {
+    if (!olddetailsofuser.avatar) {
       throw new ApiError(400,"no avatar found on cloudinary to get replaced")
     }
     const isdeleteFromCloudinary = await deleteFromCloudinary(olddetailsofuser.avatar)
@@ -323,6 +323,14 @@ if (!coverImageLocalPath) {
   if(!coverImage.url){
       throw new ApiError(400,"error while uploading cover image to cloudinary")
   }
+  const olddetailsofuser=await User.findById(req.user?._id)
+    if (!olddetailsofuser.coverImage) {
+      throw new ApiError(400,"no cover image found on cloudinary to get replaced")
+    }
+    const isdeleteFromCloudinary = await deleteFromCloudinary(olddetailsofuser.coverImage)
+    if (isdeleteFromCloudinary) {
+      throw new ApiError(400,"old coverImage deleting failed")
+    }
   const user=await User.findByIdAndUpdate(
     req.user?._id,
     {
